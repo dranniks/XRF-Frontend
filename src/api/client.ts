@@ -1,4 +1,4 @@
-﻿const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api";
 
 const buildUrl = (path: string): string => {
   if (path.startsWith("http://") || path.startsWith("https://")) {
@@ -10,11 +10,15 @@ const buildUrl = (path: string): string => {
 };
 
 export const apiRequest = async <T>(path: string, init?: RequestInit): Promise<T> => {
+  const headers = new Headers(init?.headers ?? {});
+  const hasBody = init?.body !== undefined && init?.body !== null;
+
+  if (hasBody && !(init?.body instanceof FormData) && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
+
   const response = await fetch(buildUrl(path), {
-    headers: {
-      "Content-Type": "application/json",
-      ...(init?.headers ?? {})
-    },
+    headers,
     ...init
   });
 

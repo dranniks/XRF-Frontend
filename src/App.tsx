@@ -144,7 +144,7 @@ function App(): JSX.Element {
             path="/services"
             element={<ServicesPage services={mockServices} draftClaim={draftClaim} onAddService={handleAddService} />}
           />
-          <Route path="/services/:slug" element={<ServiceDetailPage services={mockServices} />} />
+          <Route path="/services/:id" element={<ServiceDetailPage services={mockServices} />} />
           <Route
             path="/artifact_claims/:claimCode"
             element={

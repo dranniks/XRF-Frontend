@@ -1,9 +1,11 @@
-﻿export interface Service {
+export interface Service {
+  id: number;
   slug: string;
   name: string;
   era: string;
   culture: string;
   description: string;
+  clipDescriptionEn: string;
   imageUrl: string;
   videoUrl?: string;
   cuReference: string;
@@ -48,3 +50,9 @@ export interface ClaimSubmitPayload {
 }
 
 export type ApiStatus = "checking" | "online" | "offline";
+
+export interface CartIcon {
+  claimId: number | null;
+  claimCode: string | null;
+  serviceCount: number;
+}

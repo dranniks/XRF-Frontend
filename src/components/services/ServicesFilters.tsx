@@ -1,5 +1,5 @@
-﻿import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
+import Form from "react-bootstrap/Form";
 
 export interface ServiceFilterState {
   query: string;
@@ -19,15 +19,12 @@ export const ServicesFilters = ({ value, onChange, onSubmit }: ServicesFiltersPr
 
   return (
     <Form className="search-card" onSubmit={handleSubmit}>
-      <Form.Label className="search-label" htmlFor="q">
-        Поиск услуги (наименование, эпоха, культура)
-      </Form.Label>
       <div className="search-row">
         <Form.Control
           id="q"
           className="search-input"
           type="text"
-          placeholder="Например: бронза"
+          placeholder="Поиск по названию услуги"
           value={value.query}
           onChange={(event) =>
             onChange({

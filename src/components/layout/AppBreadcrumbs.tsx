@@ -22,13 +22,16 @@ const createBreadcrumbs = (pathname: string, services: Service[]): BreadcrumbIte
   }
 
   if (pathname.startsWith("/services/")) {
-    const slug = pathname.replace("/services/", "");
-    const service = services.find((item) => item.slug === slug);
+    const serviceIdentifier = pathname.replace("/services/", "");
+    const maybeID = Number(serviceIdentifier);
+    const service = Number.isFinite(maybeID)
+      ? services.find((item) => item.id === maybeID)
+      : services.find((item) => item.slug === serviceIdentifier);
 
     return [
       baseItem,
       {
-        label: service?.name ?? slug,
+        label: service?.name ?? `Услуга ${serviceIdentifier}`,
         to: pathname
       }
     ];

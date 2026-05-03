@@ -8,18 +8,23 @@ import { ServiceImage } from "./ServiceImage";
 interface ServiceCardProps {
   service: Service;
   onAddService: (serviceSlug: string) => void;
+  clipScore?: number;
 }
 
-export const ServiceCard = ({ service, onAddService }: ServiceCardProps): JSX.Element => (
+export const ServiceCard = ({ service, onAddService, clipScore }: ServiceCardProps): JSX.Element => (
   <Card className="service-card">
-    <Link to={`/services/${service.slug}`}>
+    <Link to={`/services/${service.id}`}>
       <ServiceImage imageUrl={service.imageUrl} alt={service.name} className="service-thumb" />
       <Card.Body className="service-body">
         <h2 className="service-name">{service.name}</h2>
+        {typeof clipScore === "number" && (
+          <p className="service-row">CLIP similarity: <strong>{clipScore.toFixed(3)}</strong></p>
+        )}
         {service.era !== "" && service.era !== "Не указано" && <p className="service-row">Эпоха: {service.era}</p>}
         {service.culture !== "" && service.culture !== "Не указано" && (
           <p className="service-row">Культура: {service.culture}</p>
         )}
+        <p className="service-row">Цена услуги: {service.price.toLocaleString("ru-RU")} ₽</p>
 
         <p className="service-row service-coeff-line">
           Cu K: <strong>{service.cuReference}</strong> Zn K: <strong>{service.znReference}</strong> Sn L: <strong>{service.snReference}</strong> Pb L: <strong>{service.pbReference}</strong>
