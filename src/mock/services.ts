@@ -67,5 +67,4 @@ export const mockServices: Service[] = [
   }
 ];
 
-export const servicesBySlug = new Map(mockServices.map((service) => [service.slug, service]));
 export const servicesByID = new Map(mockServices.map((service) => [service.id, service]));

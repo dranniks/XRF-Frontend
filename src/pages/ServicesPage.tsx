@@ -1,28 +1,30 @@
-import { useEffect, useMemo, useState, type ChangeEvent } from "react";
+﻿import { useEffect, useState, type ChangeEvent } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
-import { getCartIcon, getServices } from "../api/publicApi";
+import { getReferenceAlloyServicesAxios } from "../api/servicesAxios";
 import { ServiceCard } from "../components/services/ServiceCard";
 import { ServicesFilters, type ServiceFilterState } from "../components/services/ServicesFilters";
-import type { Claim, Service } from "../types/domain";
+import { addServiceToDraftThunk, fetchCartIconThunk } from "../store/draftClaimSlice";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import type { Service } from "../types/domain";
 import { pluralizeServices } from "../utils/format";
-
-interface ServicesPageProps {
-  services: Service[];
-  draftClaim: Claim;
-  onAddService: (serviceSlug: string) => void;
-}
 
 const initialFilters: ServiceFilterState = {
   query: ""
 };
 
-export const ServicesPage = ({ services, draftClaim, onAddService }: ServicesPageProps): JSX.Element => {
+export const ServicesPage = (): JSX.Element => {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const { draftClaimId, cartServiceCount, mutating, error: draftError } = useAppSelector((state) => state.draftClaim);
+
   const [filters, setFilters] = useState<ServiceFilterState>(initialFilters);
   const [appliedFilters, setAppliedFilters] = useState<ServiceFilterState>(initialFilters);
-  const [items, setItems] = useState<Service[]>(services);
+  const [items, setItems] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [servicesNote, setServicesNote] = useState<string>("");
-  const [cartCount, setCartCount] = useState<number>(0);
+  const [pageError, setPageError] = useState<string>("");
 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [clipThreshold, setClipThreshold] = useState<number>(0.55);
@@ -34,17 +36,21 @@ export const ServicesPage = ({ services, draftClaim, onAddService }: ServicesPag
   const [clipServices, setClipServices] = useState<Service[]>([]);
 
   useEffect(() => {
+    void dispatch(fetchCartIconThunk());
+  }, [dispatch, isAuthenticated]);
+
+  useEffect(() => {
     let isMounted = true;
 
     const loadServices = async (): Promise<void> => {
       setIsLoading(true);
-      const response = await getServices(appliedFilters);
+      setPageError("");
+      const response = await getReferenceAlloyServicesAxios(appliedFilters);
       if (!isMounted) {
         return;
       }
 
       setItems(response.data);
-      setServicesNote(response.note ?? "");
       setIsLoading(false);
       setClipSearchActive(false);
       setClipScores(new Map());
@@ -59,32 +65,7 @@ export const ServicesPage = ({ services, draftClaim, onAddService }: ServicesPag
     };
   }, [appliedFilters]);
 
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadCartIcon = async (): Promise<void> => {
-      const response = await getCartIcon();
-      if (!isMounted) {
-        return;
-      }
-
-      const localDraftCount = draftClaim.rows.reduce((sum, row) => sum + row.quantity, 0);
-      setCartCount(response.source === "backend" ? response.data.serviceCount : localDraftCount);
-    };
-
-    void loadCartIcon();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [draftClaim.rows]);
-
-  const shownServices = useMemo(() => {
-    if (!clipSearchActive) {
-      return items;
-    }
-    return clipServices;
-  }, [clipSearchActive, clipServices, items]);
+  const shownServices = clipSearchActive ? clipServices : items;
 
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>): void => {
     const file = event.target.files?.[0] ?? null;
@@ -126,12 +107,10 @@ export const ServicesPage = ({ services, draftClaim, onAddService }: ServicesPag
 
       if (matchedServices.length === 0) {
         const maxScore = detailed.allScores.length > 0 ? detailed.allScores[0].score.toFixed(3) : "0.000";
-        setClipError(
-          `Совпадений не найдено при threshold=${detailed.threshold.toFixed(2)}. Максимальный score=${maxScore}. Снизьте threshold.`
-        );
+        setClipError(`Совпадений не найдено при threshold=${detailed.threshold.toFixed(2)}. Максимальный score=${maxScore}.`);
       }
     } catch {
-      setClipError("Не удалось выполнить CLIP-поиск. Проверьте подключение и повторите попытку.");
+      setClipError("Не удалось выполнить CLIP-поиск.");
     } finally {
       setClipSearchLoading(false);
     }
@@ -144,26 +123,46 @@ export const ServicesPage = ({ services, draftClaim, onAddService }: ServicesPag
     setClipError("");
   };
 
+  const handleAddService = async (serviceID: number): Promise<void> => {
+    setPageError("");
+
+    if (!isAuthenticated) {
+      navigate("/auth/login");
+      return;
+    }
+
+    try {
+      await dispatch(addServiceToDraftThunk(serviceID)).unwrap();
+    } catch (error) {
+      const message = typeof error === "string" ? error : "Не удалось добавить услугу в черновик.";
+      setPageError(message);
+    }
+  };
+
   return (
     <>
       <section className="list-actions">
         <ServicesFilters value={filters} onChange={setFilters} onSubmit={() => setAppliedFilters(filters)} />
 
-        <a
-          className={`cart-link ${cartCount === 0 ? "cart-link-disabled" : ""}`}
-          href="/api/claims/cart-icon"
-          target="_blank"
-          rel="noreferrer"
-          title="Открыть ответ корзины (JSON)"
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M12 3c-1.2 0-2.2.8-2.5 2H8.4c-.8 0-1.4.6-1.4 1.4V7h10V6.4c0-.8-.6-1.4-1.4-1.4h-1.1C14.2 3.8 13.2 3 12 3zm-2.8 4v2.2c0 1.9-1.2 3.6-3.1 4.3l1 5c.1.9.8 1.5 1.7 1.5h6.4c.9 0 1.6-.6 1.7-1.5l1-5c-1.9-.7-3.1-2.4-3.1-4.3V7h-5.6zm2.8 2.3c.5 0 .9.4.9.9v3.6c0 .5-.4.9-.9.9s-.9-.4-.9-.9v-3.6c0-.5.4-.9.9-.9z" />
-          </svg>
-          <span>Иконка корзины</span>
-          <strong>
-            {cartCount} {pluralizeServices(cartCount)}
-          </strong>
-        </a>
+        {draftClaimId ? (
+          <Link className="cart-link" to={`/xrf-claims/${draftClaimId}`} title="Открыть текущий черновик заявки">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 3c-1.2 0-2.2.8-2.5 2H8.4c-.8 0-1.4.6-1.4 1.4V7h10V6.4c0-.8-.6-1.4-1.4-1.4h-1.1C14.2 3.8 13.2 3 12 3zm-2.8 4v2.2c0 1.9-1.2 3.6-3.1 4.3l1 5c.1.9.8 1.5 1.7 1.5h6.4c.9 0 1.6-.6 1.7-1.5l1-5c-1.9-.7-3.1-2.4-3.1-4.3V7h-5.6zm2.8 2.3c.5 0 .9.4.9.9v3.6c0 .5-.4.9-.9.9s-.9-.4-.9-.9v-3.6c0-.5.4-.9.9-.9z" />
+            </svg>
+            <span>Черновик заявки</span>
+            <strong>
+              {cartServiceCount} {pluralizeServices(cartServiceCount)}
+            </strong>
+          </Link>
+        ) : (
+          <span className="cart-link cart-link-disabled" title="Сначала добавьте услугу в заявку">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 3c-1.2 0-2.2.8-2.5 2H8.4c-.8 0-1.4.6-1.4 1.4V7h10V6.4c0-.8-.6-1.4-1.4-1.4h-1.1C14.2 3.8 13.2 3 12 3zm-2.8 4v2.2c0 1.9-1.2 3.6-3.1 4.3l1 5c.1.9.8 1.5 1.7 1.5h6.4c.9 0 1.6-.6 1.7-1.5l1-5c-1.9-.7-3.1-2.4-3.1-4.3V7h-5.6zm2.8 2.3c.5 0 .9.4.9.9v3.6c0 .5-.4.9-.9.9s-.9-.4-.9-.9v-3.6c0-.5.4-.9.9-.9z" />
+            </svg>
+            <span>Черновик заявки</span>
+            <strong>недоступен</strong>
+          </span>
+        )}
       </section>
 
       <section className="card clip-panel">
@@ -182,14 +181,7 @@ export const ServicesPage = ({ services, draftClaim, onAddService }: ServicesPag
           </label>
           <label className="clip-control">
             TopK
-            <input
-              className="search-input"
-              type="number"
-              min={1}
-              max={20}
-              value={clipTopK}
-              onChange={handleTopKChange}
-            />
+            <input className="search-input" type="number" min={1} max={20} value={clipTopK} onChange={handleTopKChange} />
           </label>
           <button className="chip chip-button" type="button" onClick={handleClipSearch} disabled={clipSearchLoading}>
             {clipSearchLoading ? "Поиск..." : "Найти по изображению"}
@@ -201,7 +193,8 @@ export const ServicesPage = ({ services, draftClaim, onAddService }: ServicesPag
         {clipError.length > 0 && <p className="notice warn">{clipError}</p>}
       </section>
 
-      {servicesNote.length > 0 && <p className="notice warn">{servicesNote}</p>}
+      {pageError.length > 0 && <p className="notice warn">{pageError}</p>}
+      {draftError && <p className="notice warn">{draftError}</p>}
 
       <section className="services-grid">
         {isLoading ? (
@@ -211,7 +204,9 @@ export const ServicesPage = ({ services, draftClaim, onAddService }: ServicesPag
             <ServiceCard
               key={service.id}
               service={service}
-              onAddService={onAddService}
+              onAddService={handleAddService}
+              canAdd={isAuthenticated}
+              isBusy={mutating}
               clipScore={clipScores.get(service.id)}
             />
           ))
@@ -222,3 +217,4 @@ export const ServicesPage = ({ services, draftClaim, onAddService }: ServicesPag
     </>
   );
 };
+

@@ -1,20 +1,15 @@
-import Table from "react-bootstrap/Table";
+﻿import Table from "react-bootstrap/Table";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
-import { getServiceByID } from "../api/publicApi";
+import { getReferenceAlloyByIDAxios } from "../api/servicesAxios";
 import { ServiceImage } from "../components/services/ServiceImage";
 import type { Service } from "../types/domain";
 
-interface ServiceDetailPageProps {
-  services: Service[];
-}
-
-export const ServiceDetailPage = ({ services }: ServiceDetailPageProps): JSX.Element => {
+export const ServiceDetailPage = (): JSX.Element => {
   const { id = "" } = useParams();
   const [service, setService] = useState<Service | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [infoMessage, setInfoMessage] = useState<string>("");
 
   useEffect(() => {
     let isMounted = true;
@@ -22,23 +17,13 @@ export const ServiceDetailPage = ({ services }: ServiceDetailPageProps): JSX.Ele
     const loadService = async (): Promise<void> => {
       setLoading(true);
       const parsedID = Number(id);
-
-      if (!Number.isFinite(parsedID)) {
-        const fallbackBySlug = services.find((item) => item.slug === id) ?? null;
-        if (isMounted) {
-          setService(fallbackBySlug);
-          setInfoMessage("Использована mock-карточка услуги.");
-          setLoading(false);
-        }
+      const response = await getReferenceAlloyByIDAxios(parsedID);
+      if (!isMounted) {
         return;
       }
 
-      const response = await getServiceByID(parsedID);
-      if (isMounted) {
-        setService(response.data);
-        setInfoMessage(response.note ?? "");
-        setLoading(false);
-      }
+      setService(response.data);
+      setLoading(false);
     };
 
     void loadService();
@@ -46,7 +31,7 @@ export const ServiceDetailPage = ({ services }: ServiceDetailPageProps): JSX.Ele
     return () => {
       isMounted = false;
     };
-  }, [id, services]);
+  }, [id]);
 
   if (loading) {
     return <section className="card">Загрузка карточки услуги...</section>;
@@ -66,8 +51,6 @@ export const ServiceDetailPage = ({ services }: ServiceDetailPageProps): JSX.Ele
 
   return (
     <section className="detail-page">
-      {infoMessage.length > 0 && <p className="notice warn">{infoMessage}</p>}
-
       <section className="vibes-portrait vibes-portrait-xl">
         {service.videoUrl ? (
           <video autoPlay muted loop playsInline>

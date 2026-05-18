@@ -1,4 +1,4 @@
-﻿import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import type { Service } from "../../types/domain";
 
@@ -34,6 +34,27 @@ const createBreadcrumbs = (pathname: string, services: Service[]): BreadcrumbIte
         label: service?.name ?? `Услуга ${serviceIdentifier}`,
         to: pathname
       }
+    ];
+  }
+
+  if (pathname === "/auth/login") {
+    return [baseItem, { label: "Авторизация", to: pathname }];
+  }
+
+  if (pathname === "/auth/register") {
+    return [baseItem, { label: "Регистрация", to: pathname }];
+  }
+
+  if (pathname === "/xrf-claims") {
+    return [baseItem, { label: "Список заявок", to: pathname }];
+  }
+
+  if (pathname.startsWith("/xrf-claims/")) {
+    const claimID = pathname.replace("/xrf-claims/", "");
+    return [
+      baseItem,
+      { label: "Список заявок", to: "/xrf-claims" },
+      { label: `Заявка ${claimID}`, to: pathname }
     ];
   }
 
