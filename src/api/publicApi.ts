@@ -11,6 +11,7 @@ interface BackendService {
   slug: string;
   name: string;
   description: string;
+  clip_description_en?: string;
   image_url: string | null;
   video_url: string | null;
   era: string;
@@ -65,7 +66,7 @@ const clipDescriptionsBySlug: Record<string, string> = {
     "Pale silver ingot with smooth texture, strong reflectance, and bright white specular highlights."
 };
 
-const buildClipDescription = (service: BackendService): string => {
+const buildFallbackClipDescription = (service: BackendService): string => {
   const normalizedSlug = service.slug.trim().toLowerCase();
   const bySlug = clipDescriptionsBySlug[normalizedSlug];
 
@@ -76,20 +77,17 @@ const buildClipDescription = (service: BackendService): string => {
   if (normalizedSlug.includes("silver")) {
     return "Ancient silver alloy artifact with bright gray metal surface for XRF similarity search.";
   }
-
   if (normalizedSlug.includes("brass")) {
     return "Ancient brass alloy artifact with yellow metallic surface for archaeological XRF matching.";
   }
-
   if (normalizedSlug.includes("bronze")) {
     return "Ancient bronze alloy artifact with brown metallic surface for archaeological XRF matching.";
   }
-
   if (normalizedSlug.includes("iron")) {
     return "Ancient iron alloy artifact with dark matte metal texture for archaeological XRF matching.";
   }
 
-  return "Archaeological metal reference alloy sample for XRF spectral comparison and matching.";
+  return "Archaeological metal reference alloy sample for XRF spectral comparison and CLIP similarity search.";
 };
 
 const ensureClipLength = (text: string): string => {
@@ -105,31 +103,36 @@ const ensureClipLength = (text: string): string => {
   return normalized.slice(0, 100).trimEnd();
 };
 
-const toService = (raw: BackendService): Service => ({
-  id: raw.id,
-  slug: raw.slug,
-  name: raw.name,
-  description: raw.description,
-  clipDescriptionEn: ensureClipLength(buildClipDescription(raw)),
-  imageUrl: raw.image_url ?? "",
-  videoUrl: raw.video_url ?? undefined,
-  era: raw.era,
-  culture: raw.culture,
-  price: raw.unit_price,
-  availableDate: raw.created_at ?? "",
-  cuReference: asString(raw.cu_reference),
-  znReference: asString(raw.zn_reference),
-  snReference: asString(raw.sn_reference),
-  pbReference: asString(raw.pb_reference)
-});
+const toService = (raw: BackendService): Service => {
+  const clipText =
+    typeof raw.clip_description_en === "string" && raw.clip_description_en.trim().length > 0
+      ? raw.clip_description_en
+      : buildFallbackClipDescription(raw);
+
+  return {
+    id: raw.id,
+    slug: raw.slug,
+    name: raw.name,
+    description: raw.description,
+    clipDescriptionEn: ensureClipLength(clipText),
+    imageUrl: raw.image_url ?? "",
+    videoUrl: raw.video_url ?? undefined,
+    era: raw.era,
+    culture: raw.culture,
+    price: raw.unit_price,
+    availableDate: raw.created_at ?? "",
+    cuReference: asString(raw.cu_reference),
+    znReference: asString(raw.zn_reference),
+    snReference: asString(raw.sn_reference),
+    pbReference: asString(raw.pb_reference)
+  };
+};
 
 const applyClientFilters = (services: Service[], filters: ServiceFiltersRequest): Service[] => {
   const query = filters.query.trim().toLowerCase();
-
   if (query.length === 0) {
     return services;
   }
-
   return services.filter((service) => service.name.toLowerCase().includes(query));
 };
 
@@ -138,7 +141,6 @@ const buildServicesQuery = (filters: ServiceFiltersRequest): string => {
   if (filters.query.trim().length > 0) {
     params.set("q", filters.query.trim());
   }
-
   const query = params.toString();
   return query.length > 0 ? `?${query}` : "";
 };

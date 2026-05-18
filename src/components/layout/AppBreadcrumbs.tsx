@@ -37,18 +37,6 @@ const createBreadcrumbs = (pathname: string, services: Service[]): BreadcrumbIte
     ];
   }
 
-  if (pathname.startsWith("/artifact_claims/")) {
-    const claimCode = pathname.replace("/artifact_claims/", "");
-
-    return [
-      baseItem,
-      {
-        label: `Заявка ${claimCode}`,
-        to: pathname
-      }
-    ];
-  }
-
   return [
     baseItem,
     {

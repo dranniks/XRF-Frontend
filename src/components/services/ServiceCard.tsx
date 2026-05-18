@@ -18,7 +18,7 @@ export const ServiceCard = ({ service, onAddService, clipScore }: ServiceCardPro
       <Card.Body className="service-body">
         <h2 className="service-name">{service.name}</h2>
         {typeof clipScore === "number" && (
-          <p className="service-row">CLIP similarity: <strong>{clipScore.toFixed(3)}</strong></p>
+          <p className="service-row">Сходство CLIP: <strong>{clipScore.toFixed(3)}</strong></p>
         )}
         {service.era !== "" && service.era !== "Не указано" && <p className="service-row">Эпоха: {service.era}</p>}
         {service.culture !== "" && service.culture !== "Не указано" && (

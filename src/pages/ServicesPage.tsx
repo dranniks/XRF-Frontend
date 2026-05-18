@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState, type ChangeEvent } from "react";
-import { Link } from "react-router-dom";
 
 import { getCartIcon, getServices } from "../api/publicApi";
 import { ServiceCard } from "../components/services/ServiceCard";
@@ -150,10 +149,12 @@ export const ServicesPage = ({ services, draftClaim, onAddService }: ServicesPag
       <section className="list-actions">
         <ServicesFilters value={filters} onChange={setFilters} onSubmit={() => setAppliedFilters(filters)} />
 
-        <Link
+        <a
           className={`cart-link ${cartCount === 0 ? "cart-link-disabled" : ""}`}
-          to={`/artifact_claims/${draftClaim.claimCode}`}
-          title="Текущая заявка"
+          href="/api/claims/cart-icon"
+          target="_blank"
+          rel="noreferrer"
+          title="Открыть ответ корзины (JSON)"
         >
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M12 3c-1.2 0-2.2.8-2.5 2H8.4c-.8 0-1.4.6-1.4 1.4V7h10V6.4c0-.8-.6-1.4-1.4-1.4h-1.1C14.2 3.8 13.2 3 12 3zm-2.8 4v2.2c0 1.9-1.2 3.6-3.1 4.3l1 5c.1.9.8 1.5 1.7 1.5h6.4c.9 0 1.6-.6 1.7-1.5l1-5c-1.9-.7-3.1-2.4-3.1-4.3V7h-5.6zm2.8 2.3c.5 0 .9.4.9.9v3.6c0 .5-.4.9-.9.9s-.9-.4-.9-.9v-3.6c0-.5.4-.9.9-.9z" />
@@ -162,7 +163,7 @@ export const ServicesPage = ({ services, draftClaim, onAddService }: ServicesPag
           <strong>
             {cartCount} {pluralizeServices(cartCount)}
           </strong>
-        </Link>
+        </a>
       </section>
 
       <section className="card clip-panel">
