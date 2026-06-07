@@ -6,6 +6,7 @@ import { SiteHeader } from "./components/layout/SiteHeader";
 import { mockServices } from "./mock/services";
 import { ClaimPage } from "./pages/ClaimPage";
 import { ClaimsListPage } from "./pages/ClaimsListPage";
+import { GuestCartPage } from "./pages/GuestCartPage";
 import { LoginPage } from "./pages/LoginPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { RegisterPage } from "./pages/RegisterPage";
@@ -40,10 +41,12 @@ function App(): JSX.Element {
           <Route path="/" element={<Navigate to="/services" replace />} />
           <Route path="/services" element={<ServicesPage />} />
           <Route path="/services/:id" element={<ServiceDetailPage />} />
+          <Route path="/cart" element={<GuestCartPage />} />
           <Route path="/auth/login" element={<LoginPage />} />
           <Route path="/auth/register" element={<RegisterPage />} />
           <Route path="/xrf-claims" element={<ClaimsListPage />} />
           <Route path="/xrf-claims/:id" element={<ClaimPage />} />
+
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>

@@ -3,12 +3,14 @@ import { configureStore } from "@reduxjs/toolkit";
 import { authReducer } from "./authSlice";
 import { claimsListReducer } from "./claimsListSlice";
 import { draftClaimReducer } from "./draftClaimSlice";
+import { servicesFiltersReducer } from "./servicesFiltersSlice";
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
     draftClaim: draftClaimReducer,
-    claimsList: claimsListReducer
+    claimsList: claimsListReducer,
+    servicesFilters: servicesFiltersReducer
   }
 });
 

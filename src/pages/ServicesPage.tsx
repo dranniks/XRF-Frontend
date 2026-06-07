@@ -6,12 +6,9 @@ import { ServiceCard } from "../components/services/ServiceCard";
 import { ServicesFilters, type ServiceFilterState } from "../components/services/ServicesFilters";
 import { addServiceToDraftThunk, fetchCartIconThunk } from "../store/draftClaimSlice";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { applyServicesFilters, setServicesQueryInput } from "../store/servicesFiltersSlice";
 import type { Service } from "../types/domain";
 import { pluralizeServices } from "../utils/format";
-
-const initialFilters: ServiceFilterState = {
-  query: ""
-};
 
 export const ServicesPage = (): JSX.Element => {
   const dispatch = useAppDispatch();
@@ -19,9 +16,8 @@ export const ServicesPage = (): JSX.Element => {
 
   const { isAuthenticated } = useAppSelector((state) => state.auth);
   const { draftClaimId, cartServiceCount, mutating, error: draftError } = useAppSelector((state) => state.draftClaim);
+  const { queryInput, appliedQuery } = useAppSelector((state) => state.servicesFilters);
 
-  const [filters, setFilters] = useState<ServiceFilterState>(initialFilters);
-  const [appliedFilters, setAppliedFilters] = useState<ServiceFilterState>(initialFilters);
   const [items, setItems] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [pageError, setPageError] = useState<string>("");
@@ -45,7 +41,7 @@ export const ServicesPage = (): JSX.Element => {
     const loadServices = async (): Promise<void> => {
       setIsLoading(true);
       setPageError("");
-      const response = await getReferenceAlloyServicesAxios(appliedFilters);
+      const response = await getReferenceAlloyServicesAxios({ query: appliedQuery });
       if (!isMounted) {
         return;
       }
@@ -63,9 +59,18 @@ export const ServicesPage = (): JSX.Element => {
     return () => {
       isMounted = false;
     };
-  }, [appliedFilters]);
+  }, [appliedQuery]);
 
   const shownServices = clipSearchActive ? clipServices : items;
+  const filtersValue: ServiceFilterState = { query: queryInput };
+
+  const handleFiltersChange = (next: ServiceFilterState): void => {
+    dispatch(setServicesQueryInput(next.query));
+  };
+
+  const handleFiltersSubmit = (): void => {
+    dispatch(applyServicesFilters());
+  };
 
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>): void => {
     const file = event.target.files?.[0] ?? null;
@@ -142,7 +147,7 @@ export const ServicesPage = (): JSX.Element => {
   return (
     <>
       <section className="list-actions">
-        <ServicesFilters value={filters} onChange={setFilters} onSubmit={() => setAppliedFilters(filters)} />
+        <ServicesFilters value={filtersValue} onChange={handleFiltersChange} onSubmit={handleFiltersSubmit} />
 
         {draftClaimId ? (
           <Link className="cart-link" to={`/xrf-claims/${draftClaimId}`} title="Открыть текущий черновик заявки">
@@ -208,6 +213,7 @@ export const ServicesPage = (): JSX.Element => {
               canAdd={isAuthenticated}
               isBusy={mutating}
               clipScore={clipScores.get(service.id)}
+              showAddButton={true}
             />
           ))
         ) : (
@@ -217,4 +223,3 @@ export const ServicesPage = (): JSX.Element => {
     </>
   );
 };
-

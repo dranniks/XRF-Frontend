@@ -168,6 +168,10 @@ td {
   margin-bottom: 14px;
 }
 
+.list-actions-single {
+  grid-template-columns: 1fr;
+}
+
 .search-card {
   background: var(--card);
   border: 1px solid var(--line);
@@ -238,7 +242,7 @@ td {
 
 .services-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(245px, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -548,7 +552,7 @@ td {
 
 .claim-items-head {
   display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.4fr) 120px 240px;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.25fr) 110px 300px;
   gap: 10px;
   padding: 8px 10px;
   border: 1px solid var(--line);
@@ -561,10 +565,10 @@ td {
 
 .claim-item-line {
   display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.4fr) 120px 240px;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1.25fr) 110px 300px;
   gap: 10px;
   align-items: center;
-  padding: 8px 10px;
+  padding: 6px 10px;
   border: 1px solid var(--line);
   margin-bottom: 8px;
   background: #151515;
@@ -578,8 +582,8 @@ td {
 }
 
 .claim-item-line .claim-item-thumb {
-  width: 80px;
-  height: 52px;
+  width: 72px;
+  height: 46px;
   object-fit: cover;
   border: 1px solid var(--line);
   border-radius: 0;
@@ -612,7 +616,13 @@ td {
   display: flex;
   gap: 8px;
   justify-content: flex-start;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+}
+
+.claim-item-actions .chip {
+  min-width: 142px;
+  white-space: nowrap;
+  text-align: center;
 }
 
 .notice {
@@ -687,6 +697,24 @@ td {
   .claim-item-line .claim-item-thumb {
     width: 100%;
     height: 160px;
+  }
+}
+
+@media (max-width: 1160px) {
+  .services-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 860px) {
+  .services-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .services-grid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -818,6 +846,30 @@ td {
   font-size: 12px;
   color: #c9c9c9;
   padding: 0 4px;
+}
+
+@media (max-width: 767px) {
+  .app-navbar .navbar-collapse .navbar-links {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding-top: 10px;
+  }
+
+  .app-navbar .navbar-collapse .navbar-link {
+    width: 100%;
+    min-height: 44px;
+    justify-content: center;
+    padding: 10px 12px;
+    border-radius: 12px;
+  }
+
+  .app-navbar .navbar-collapse .navbar-user {
+    width: 100%;
+    text-align: center;
+    padding: 4px 0;
+  }
 }
 
 @media (min-width: 768px) {

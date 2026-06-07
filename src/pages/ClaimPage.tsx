@@ -207,7 +207,7 @@ export const ClaimPage = (): JSX.Element => {
 
             <div className="claim-items-head">
               <span>Услуга</span>
-              <span>Комментарий m-m</span>
+              <span>Комментарий</span>
               <span>Результат</span>
               <span>Действия</span>
             </div>

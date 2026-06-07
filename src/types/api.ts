@@ -95,6 +95,35 @@ export const asString = (value: number | string | null | undefined): string => {
   return typeof value === "number" ? value.toString() : value;
 };
 
+const MEDIA_BASE_URL = (import.meta.env.VITE_MEDIA_BASE_URL ?? "").trim();
+
+const normalizeMediaUrl = (rawUrl: string | null | undefined): string => {
+  const source = typeof rawUrl === "string" ? rawUrl.trim() : "";
+  if (source.length === 0) {
+    return "";
+  }
+
+  if (MEDIA_BASE_URL.length === 0) {
+    return source;
+  }
+
+  try {
+    const mediaBase = new URL(MEDIA_BASE_URL);
+
+    if (/^https?:\/\//i.test(source)) {
+      const parsed = new URL(source);
+      parsed.protocol = mediaBase.protocol;
+      parsed.host = mediaBase.host;
+      return parsed.toString();
+    }
+
+    const relativePath = source.startsWith("/") ? source : `/${source}`;
+    return new URL(relativePath, mediaBase).toString();
+  } catch {
+    return source;
+  }
+};
+
 const clipDescriptionsBySlug: Record<string, string> = {
   "alloy-bronze-cyprus":
     "Dark brown bronze ingot with oxidized rough texture and warm copper highlights under light.",
@@ -163,8 +192,8 @@ export const toService = (raw: BackendService): Service => {
     name: raw.name,
     description: raw.description,
     clipDescriptionEn: ensureClipLength(clipText),
-    imageUrl: raw.image_url ?? "",
-    videoUrl: raw.video_url ?? undefined,
+    imageUrl: normalizeMediaUrl(raw.image_url),
+    videoUrl: normalizeMediaUrl(raw.video_url) || undefined,
     era: raw.era,
     culture: raw.culture,
     price: raw.unit_price,
@@ -180,8 +209,8 @@ export const toClaimServiceItem = (item: BackendClaimItem): ClaimServiceItem => 
   serviceId: item.service_id,
   serviceSlug: item.service_slug,
   serviceName: item.service_name,
-  serviceImageUrl: item.service_image_url,
-  serviceVideoUrl: item.service_video_url,
+  serviceImageUrl: normalizeMediaUrl(item.service_image_url) || null,
+  serviceVideoUrl: normalizeMediaUrl(item.service_video_url) || null,
   matchComment: item.match_comment,
   resultValue: item.result_value
 });

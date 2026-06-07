@@ -35,7 +35,7 @@ export const getReferenceAlloyServicesAxios = async (filters: ServiceFiltersRequ
     return {
       data: applyClientFilters(mockServices, filters),
       source: "mock",
-      note: `Бэкенд недоступен: ${getApiErrorMessage(error, "использованы mock-данные.")}`
+      note: `Бэкенд недоступен: ${getApiErrorMessage(error, "Использованы mock-данные.")}`
     };
   }
 };

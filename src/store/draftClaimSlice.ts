@@ -1,4 +1,4 @@
-﻿import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 import {
   addServiceToDraftGenerated,
@@ -62,7 +62,7 @@ export const addServiceToDraftThunk = createAsyncThunk<
 >("draftClaim/addServiceToDraft", async (serviceID, { getState, dispatch, rejectWithValue }) => {
   const token = resolveToken(getState());
   if (!token) {
-    return rejectWithValue("РЎРЅР°С‡Р°Р»Р° РІС‹РїРѕР»РЅРёС‚Рµ РІС…РѕРґ.");
+    return rejectWithValue("Сначала выполните вход.");
   }
 
   try {
@@ -74,7 +74,7 @@ export const addServiceToDraftThunk = createAsyncThunk<
       claimCode: response.data.claim_code
     };
   } catch (error) {
-    return rejectWithValue(getApiErrorMessage(error, "РќРµ СѓРґР°Р»РѕСЃСЊ РґРѕР±Р°РІРёС‚СЊ СѓСЃР»СѓРіСѓ РІ С‡РµСЂРЅРѕРІРёРє."));
+    return rejectWithValue(getApiErrorMessage(error, "Не удалось добавить услугу в черновик."));
   }
 });
 
@@ -85,14 +85,14 @@ export const fetchClaimByIdThunk = createAsyncThunk<
 >("draftClaim/fetchClaimById", async (claimID, { getState, rejectWithValue }) => {
   const token = resolveToken(getState());
   if (!token) {
-    return rejectWithValue("РЎРЅР°С‡Р°Р»Р° РІС‹РїРѕР»РЅРёС‚Рµ РІС…РѕРґ.");
+    return rejectWithValue("Сначала выполните вход.");
   }
 
   try {
     const response = await getClaimDetailsGenerated(token, claimID);
     return toClaimDetails(response.data);
   } catch (error) {
-    return rejectWithValue(getApiErrorMessage(error, "РќРµ СѓРґР°Р»РѕСЃСЊ РїРѕР»СѓС‡РёС‚СЊ Р·Р°СЏРІРєСѓ."));
+    return rejectWithValue(getApiErrorMessage(error, "Не удалось получить заявку."));
   }
 });
 
@@ -105,10 +105,10 @@ export const updateDraftMatchThunk = createAsyncThunk<
   const draftID = getState().draftClaim.draftClaimId;
 
   if (!token) {
-    return rejectWithValue("РЎРЅР°С‡Р°Р»Р° РІС‹РїРѕР»РЅРёС‚Рµ РІС…РѕРґ.");
+    return rejectWithValue("Сначала выполните вход.");
   }
   if (!draftID) {
-    return rejectWithValue("Р§РµСЂРЅРѕРІРёРє РЅРµ РЅР°Р№РґРµРЅ.");
+    return rejectWithValue("Черновик не найден.");
   }
 
   try {
@@ -118,7 +118,7 @@ export const updateDraftMatchThunk = createAsyncThunk<
     await dispatch(fetchClaimByIdThunk(draftID));
     await dispatch(fetchCartIconThunk());
   } catch (error) {
-    return rejectWithValue(getApiErrorMessage(error, "РќРµ СѓРґР°Р»РѕСЃСЊ РѕР±РЅРѕРІРёС‚СЊ РїРѕР·РёС†РёСЋ Р·Р°СЏРІРєРё."));
+    return rejectWithValue(getApiErrorMessage(error, "Не удалось обновить позицию заявки."));
   }
 });
 
@@ -131,10 +131,10 @@ export const deleteDraftMatchThunk = createAsyncThunk<
   const draftID = getState().draftClaim.draftClaimId;
 
   if (!token) {
-    return rejectWithValue("РЎРЅР°С‡Р°Р»Р° РІС‹РїРѕР»РЅРёС‚Рµ РІС…РѕРґ.");
+    return rejectWithValue("Сначала выполните вход.");
   }
   if (!draftID) {
-    return rejectWithValue("Р§РµСЂРЅРѕРІРёРє РЅРµ РЅР°Р№РґРµРЅ.");
+    return rejectWithValue("Черновик не найден.");
   }
 
   try {
@@ -142,7 +142,7 @@ export const deleteDraftMatchThunk = createAsyncThunk<
     await dispatch(fetchClaimByIdThunk(draftID));
     await dispatch(fetchCartIconThunk());
   } catch (error) {
-    return rejectWithValue(getApiErrorMessage(error, "РќРµ СѓРґР°Р»РѕСЃСЊ СѓРґР°Р»РёС‚СЊ СѓСЃР»СѓРіСѓ РёР· С‡РµСЂРЅРѕРІРёРєР°."));
+    return rejectWithValue(getApiErrorMessage(error, "Не удалось удалить услугу из черновика."));
   }
 });
 
@@ -162,7 +162,7 @@ export const updateDraftClaimFieldsThunk = createAsyncThunk<
   async ({ claimID, operatorComment, cuMeasured, znMeasured, snMeasured, pbMeasured }, { getState, dispatch, rejectWithValue }) => {
     const token = resolveToken(getState());
     if (!token) {
-      return rejectWithValue("РЎРЅР°С‡Р°Р»Р° РІС‹РїРѕР»РЅРёС‚Рµ РІС…РѕРґ.");
+      return rejectWithValue("Сначала выполните вход.");
     }
 
     try {
@@ -175,7 +175,7 @@ export const updateDraftClaimFieldsThunk = createAsyncThunk<
       });
       await dispatch(fetchClaimByIdThunk(claimID));
     } catch (error) {
-      return rejectWithValue(getApiErrorMessage(error, "РќРµ СѓРґР°Р»РѕСЃСЊ СЃРѕС…СЂР°РЅРёС‚СЊ РїРѕР»СЏ Р·Р°СЏРІРєРё."));
+      return rejectWithValue(getApiErrorMessage(error, "Не удалось сохранить поля заявки."));
     }
   }
 );
@@ -185,7 +185,7 @@ export const formDraftClaimThunk = createAsyncThunk<void, number, { state: RootS
   async (claimID, { getState, dispatch, rejectWithValue }) => {
     const token = resolveToken(getState());
     if (!token) {
-      return rejectWithValue("РЎРЅР°С‡Р°Р»Р° РІС‹РїРѕР»РЅРёС‚Рµ РІС…РѕРґ.");
+      return rejectWithValue("Сначала выполните вход.");
     }
 
     try {
@@ -193,7 +193,7 @@ export const formDraftClaimThunk = createAsyncThunk<void, number, { state: RootS
       await dispatch(fetchClaimByIdThunk(claimID));
       await dispatch(fetchCartIconThunk());
     } catch (error) {
-      return rejectWithValue(getApiErrorMessage(error, "РќРµ СѓРґР°Р»РѕСЃСЊ СЃС„РѕСЂРјРёСЂРѕРІР°С‚СЊ Р·Р°СЏРІРєСѓ."));
+      return rejectWithValue(getApiErrorMessage(error, "Не удалось сформировать заявку."));
     }
   }
 );
@@ -203,14 +203,14 @@ export const deleteDraftClaimThunk = createAsyncThunk<void, number, { state: Roo
   async (claimID, { getState, dispatch, rejectWithValue }) => {
     const token = resolveToken(getState());
     if (!token) {
-      return rejectWithValue("РЎРЅР°С‡Р°Р»Р° РІС‹РїРѕР»РЅРёС‚Рµ РІС…РѕРґ.");
+      return rejectWithValue("Сначала выполните вход.");
     }
 
     try {
       await deleteDraftClaimGenerated(token, claimID);
       await dispatch(fetchCartIconThunk());
     } catch (error) {
-      return rejectWithValue(getApiErrorMessage(error, "РќРµ СѓРґР°Р»РѕСЃСЊ СѓРґР°Р»РёС‚СЊ С‡РµСЂРЅРѕРІРёРє."));
+      return rejectWithValue(getApiErrorMessage(error, "Не удалось удалить черновик."));
     }
   }
 );
@@ -253,7 +253,7 @@ export const draftClaimSlice = createSlice({
       })
       .addCase(fetchClaimByIdThunk.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload ?? "РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РіСЂСѓР·РёС‚СЊ Р·Р°СЏРІРєСѓ.";
+        state.error = action.payload ?? "Не удалось загрузить заявку.";
       })
       .addCase(addServiceToDraftThunk.pending, (state) => {
         state.mutating = true;
@@ -266,7 +266,7 @@ export const draftClaimSlice = createSlice({
       })
       .addCase(addServiceToDraftThunk.rejected, (state, action) => {
         state.mutating = false;
-        state.error = action.payload ?? "РћС€РёР±РєР° РґРѕР±Р°РІР»РµРЅРёСЏ СѓСЃР»СѓРіРё.";
+        state.error = action.payload ?? "Ошибка добавления услуги.";
       })
       .addCase(updateDraftMatchThunk.pending, (state) => {
         state.mutating = true;
@@ -277,7 +277,7 @@ export const draftClaimSlice = createSlice({
       })
       .addCase(updateDraftMatchThunk.rejected, (state, action) => {
         state.mutating = false;
-        state.error = action.payload ?? "РћС€РёР±РєР° РёР·РјРµРЅРµРЅРёСЏ РїРѕР·РёС†РёРё.";
+        state.error = action.payload ?? "Ошибка изменения позиции.";
       })
       .addCase(deleteDraftMatchThunk.pending, (state) => {
         state.mutating = true;
@@ -288,7 +288,7 @@ export const draftClaimSlice = createSlice({
       })
       .addCase(deleteDraftMatchThunk.rejected, (state, action) => {
         state.mutating = false;
-        state.error = action.payload ?? "РћС€РёР±РєР° СѓРґР°Р»РµРЅРёСЏ РїРѕР·РёС†РёРё.";
+        state.error = action.payload ?? "Ошибка удаления позиции.";
       })
       .addCase(updateDraftClaimFieldsThunk.pending, (state) => {
         state.mutating = true;
@@ -299,7 +299,7 @@ export const draftClaimSlice = createSlice({
       })
       .addCase(updateDraftClaimFieldsThunk.rejected, (state, action) => {
         state.mutating = false;
-        state.error = action.payload ?? "РћС€РёР±РєР° СЃРѕС…СЂР°РЅРµРЅРёСЏ Р·Р°СЏРІРєРё.";
+        state.error = action.payload ?? "Ошибка сохранения заявки.";
       })
       .addCase(formDraftClaimThunk.pending, (state) => {
         state.mutating = true;
@@ -310,7 +310,7 @@ export const draftClaimSlice = createSlice({
       })
       .addCase(formDraftClaimThunk.rejected, (state, action) => {
         state.mutating = false;
-        state.error = action.payload ?? "РћС€РёР±РєР° С„РѕСЂРјРёСЂРѕРІР°РЅРёСЏ Р·Р°СЏРІРєРё.";
+        state.error = action.payload ?? "Ошибка формирования заявки.";
       })
       .addCase(deleteDraftClaimThunk.pending, (state) => {
         state.mutating = true;
@@ -325,7 +325,7 @@ export const draftClaimSlice = createSlice({
       })
       .addCase(deleteDraftClaimThunk.rejected, (state, action) => {
         state.mutating = false;
-        state.error = action.payload ?? "РћС€РёР±РєР° СѓРґР°Р»РµРЅРёСЏ С‡РµСЂРЅРѕРІРёРєР°.";
+        state.error = action.payload ?? "Ошибка удаления черновика.";
       })
       .addCase(logoutThunk.fulfilled, (state) => {
         state.draftClaimId = null;
@@ -352,4 +352,3 @@ export const draftClaimSlice = createSlice({
 
 export const { clearDraftInfoMessage, resetDraftState } = draftClaimSlice.actions;
 export const draftClaimReducer = draftClaimSlice.reducer;
-

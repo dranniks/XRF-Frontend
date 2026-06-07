@@ -1,5 +1,7 @@
 import type { Service } from "../types/domain";
 
+const media = (fileName: string): string => `${import.meta.env.BASE_URL}media/${fileName}`;
+
 export const mockServices: Service[] = [
   {
     id: 1,
@@ -9,7 +11,8 @@ export const mockServices: Service[] = [
     culture: "Eastern Mediterranean",
     description: "Эталонный бронзовый сплав Кипра для XRF-сопоставления.",
     clipDescriptionEn: "Dark brown bronze ingot with oxidized rough texture and warm copper highlights under light.",
-    imageUrl: "",
+    imageUrl: media("bronze.png"),
+    videoUrl: media("bronze.mp4"),
     cuReference: "0.83",
     znReference: "0.04",
     snReference: "0.31",
@@ -25,7 +28,8 @@ export const mockServices: Service[] = [
     culture: "Roman Empire",
     description: "Эталонная латунь римского периода для XRF-анализа.",
     clipDescriptionEn: "Warm yellow brass ingot with bright golden edges and medium metallic reflectance on surface.",
-    imageUrl: "",
+    imageUrl: media("brass.png"),
+    videoUrl: media("brass.mp4"),
     cuReference: "0.78",
     znReference: "0.64",
     snReference: "0.06",
@@ -41,7 +45,8 @@ export const mockServices: Service[] = [
     culture: "Скандинавские мастерские",
     description: "Эталонный железный сплав северной традиции для XRF-сопоставления.",
     clipDescriptionEn: "Dark gray iron ingot with matte grainy texture, cold tone, and weak silver highlights.",
-    imageUrl: "",
+    imageUrl: media("iron.png"),
+    videoUrl: media("iron.mp4"),
     cuReference: "0.14",
     znReference: "0.02",
     snReference: "0.01",
@@ -57,7 +62,8 @@ export const mockServices: Service[] = [
     culture: "Byzantine workshops",
     description: "Эталонный серебряный сплав византийского периода.",
     clipDescriptionEn: "Pale silver ingot with smooth texture, strong reflectance, and bright white specular highlights.",
-    imageUrl: "",
+    imageUrl: media("silver.png"),
+    videoUrl: media("silver.mp4"),
     cuReference: "0.29",
     znReference: "0.01",
     snReference: "0",

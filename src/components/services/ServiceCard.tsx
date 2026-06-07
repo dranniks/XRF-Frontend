@@ -1,4 +1,4 @@
-import Button from "react-bootstrap/Button";
+﻿import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import { Link } from "react-router-dom";
 
@@ -11,9 +11,17 @@ interface ServiceCardProps {
   canAdd: boolean;
   isBusy: boolean;
   clipScore?: number;
+  showAddButton?: boolean;
 }
 
-export const ServiceCard = ({ service, onAddService, canAdd, isBusy, clipScore }: ServiceCardProps): JSX.Element => (
+export const ServiceCard = ({
+  service,
+  onAddService,
+  canAdd,
+  isBusy,
+  clipScore,
+  showAddButton = true
+}: ServiceCardProps): JSX.Element => (
   <Card className="service-card">
     <Link to={`/services/${service.id}`}>
       <ServiceImage imageUrl={service.imageUrl} alt={service.name} className="service-thumb" />
@@ -36,17 +44,19 @@ export const ServiceCard = ({ service, onAddService, canAdd, isBusy, clipScore }
       </Card.Body>
     </Link>
 
-    <Card.Body className="service-body service-action-wrap">
-      <Button
-        variant="link"
-        className="chip chip-button"
-        type="button"
-        onClick={() => onAddService(service.id)}
-        disabled={!canAdd || isBusy}
-        title={!canAdd ? "Доступно после авторизации" : undefined}
-      >
-        {isBusy ? "Выполняется..." : "Добавить услугу в заявку"}
-      </Button>
-    </Card.Body>
+    {showAddButton && (
+      <Card.Body className="service-body service-action-wrap">
+        <Button
+          variant="link"
+          className="chip chip-button"
+          type="button"
+          onClick={() => onAddService(service.id)}
+          disabled={!canAdd || isBusy}
+          title={!canAdd ? "Доступно после авторизации" : undefined}
+        >
+          {isBusy ? "Выполняется..." : "Добавить услугу в заявку"}
+        </Button>
+      </Card.Body>
+    )}
   </Card>
 );

@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+﻿import { Link, useLocation } from "react-router-dom";
 
 import type { Service } from "../../types/domain";
 
@@ -19,6 +19,10 @@ const baseItem: BreadcrumbItem = {
 const createBreadcrumbs = (pathname: string, services: Service[]): BreadcrumbItem[] => {
   if (pathname === "/" || pathname === "/services") {
     return [baseItem];
+  }
+
+  if (pathname === "/cart") {
+    return [baseItem, { label: "Корзина", to: pathname }];
   }
 
   if (pathname.startsWith("/services/")) {
